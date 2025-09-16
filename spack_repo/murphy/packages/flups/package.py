@@ -42,23 +42,20 @@ class Flups(MakefilePackage, CudaPackage):
             "OPTS": "-DNDEBUG",
             "CC": spec["mpi"].mpicc,
             "CXX": spec["mpi"].mpicxx,
-            "CCFLAGS": "-03 -DNDEBUG -DNO_PROF",
-            "CXXFLAGS": "-03 -DNDEBUG -DNO_PROF",
-            "LDFLAGS": "-fopenmp",
+            "CCFLAGS": "-O3 -DNDEBUG -DNO_PROF",
+            "CXXFLAGS": "-O3 -DNDEBUG -DNO_PROF",
             # HDF5
-            "HDF5_DIR": prefix,
-            "HDF5_LIB": prefix.lib,
-            "HDF5_DIR": prefix.dir,
+            "HDF5_LIB": f"{spec['hdf5'].home}/lib",
+            "HDF5_INC": f"{spec['hdf5'].home}/include",
             # H3LPR
-            "H3LPR_DIR": prefix,
-            "H3LPR_LIB": prefix.lib,
-            "H3LPR_DIR": prefix.dir,
+            "H3LPR_LIB": f"{spec['h3lpr'].home}/lib",
+            "H3LPR_INC": f"{spec['h3lpr'].home}/include",
         }
 
         if spec.satisfies("+cuda"):
             # Use NVCC for CUDA
-            env["OMPI_CC"] = "nvcc"
-            env["OMPI_CXX"] = "nvcc"
+            env["MPICH_CC"] = "nvcc"
+            env["MPICH_CXX"] = "nvcc"
             # Set backend
             arch_file["OPTS"] += " -DBACKEND_CUDA"
             arch_file["CCFLAGS"] += " -DBACKEND_CUDA"
@@ -69,11 +66,10 @@ class Flups(MakefilePackage, CudaPackage):
             arch_file["CCFLAGS"] += " -DBACKEND_FFTW"
             arch_file["CXXFLAGS"] += " -DBACKEND_FFTW"
             # FFTW
-            arch_file["FFTW_DIR"] = prefix,
-            arch_file["FFTW_LIB"] = prefix.lib,
-            arch_file["FFTW_DIR"] = prefix.dir,
+            arch_file["FFTW_LIB"] = f"{spec['fftw'].home}/lib"
+            arch_file["FFTW_INC"] = f"{spec['fftw'].home}/include"
 
         with open(env["ARCH_FILE"], "w") as f:
             for key in arch_file:
-                f.write(f"{key}:={arch_file[key]}")
+                f.write(f"{key}:={arch_file[key]}\n")
 
